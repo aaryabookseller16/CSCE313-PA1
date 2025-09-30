@@ -1,0 +1,23 @@
+Transfer Time vs. File Size
+
+Setup:
+- Client/server communication via named pipes (FIFOs) with a default buffer capacity of 256 bytes.
+- Tested files: 1, 5, 10, 20, 50, and 100 MB (truncated in BIMDC/).
+
+Results (File Size in MB, Transfer Time in seconds):
+MB, seconds
+1, 0.462
+5, 1.100
+10, 1.853
+20, 3.795
+50, 8.076
+100, 15.516
+
+Observations:
+- Transfer time scales approximately linearly with file size, following an initial small startup overhead.
+- Using larger buffers (e.g., with -m 4096) reduces the number of round trips, thereby improving throughput. However, the performance gains diminish once FIFO bandwidth limits and syscall/memcpy overhead become dominant.
+
+Explanation:
+- Each data chunk involves a request/response cycle over FIFOs, file reading, and user/kernel memory copies.
+- The model for transfer time is: time ≈ constant_overhead + (bytes / effective_throughput), resulting in a near-linear relationship.
+(Refer to times.png for visualization.)
